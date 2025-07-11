@@ -33,9 +33,16 @@ const config = {
 	coverageProvider: 'v8',
 
 	// ts-jest specific configs
-	testEnvironment: 'node',
+	testEnvironment: 'jsdom',
+	setupFilesAfterEnv: ['@testing-library/jest-dom'],
 	transform: {
-		'^.+.tsx?$': ['ts-jest', {}]
+		'^.+\\.tsx?$': [
+			'ts-jest',
+			{
+				tsconfig: './tsconfig.test.json',
+				diagnostics: false
+			}
+		]
 	},
 
 	// A list of reporter names that Jest uses when writing coverage reports
