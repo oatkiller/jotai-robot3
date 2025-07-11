@@ -1,6 +1,6 @@
 # jotai-robot3
 
-👻🤖
+👻🤖🤖🤖
 
 Jotai integration helpers for [Robot3](https://thisrobot.life/) finite-state machines.
 
