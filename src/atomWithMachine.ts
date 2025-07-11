@@ -4,7 +4,7 @@ import type { Getter, WritableAtom } from 'jotai/vanilla';
 import { atom } from 'jotai/vanilla';
 import { interpret, type Service } from 'robot3';
 
-import { RESTART, isGetter } from './utils';
+import { RESTART, isGetter } from './utils.ts';
 
 // Helper type for events that can be sent to the service. Robot3 accepts
 // strings (transition name) or objects with a "type" field by default, so we
@@ -134,7 +134,9 @@ export function atomWithMachine(
 				set(cachedServiceAtom, null);
 				set(cachedSnapshotAtom, null);
 				// Trigger lazy re-initialisation on next read.
-				set(snapshotAtom);
+				// Pass an explicit undefined to satisfy WritableAtom setter types.
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				set(snapshotAtom, undefined as any);
 			} else {
 				service.send(event as any);
 				// No need to manually update snapshot – `onChange` callback will fire.
