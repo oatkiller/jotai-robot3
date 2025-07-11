@@ -4,6 +4,7 @@
 	"description": "👻🤖🤖🤖",
 	"author": "Robert Austin",
 	"license": "MIT",
+	"private": true,
 	"keywords": [
 		"jotai",
 		"robot3",
