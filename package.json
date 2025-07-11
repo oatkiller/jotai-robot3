@@ -2,7 +2,7 @@
 	"name": "jotai-robot3",
 	"version": "1.0.0",
 	"description": "Jotai integration helpers for Robot3 state machines",
-	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
+	"author": "Robert Austin",
 	"license": "MIT",
 	"keywords": [
 		"jotai",
@@ -32,6 +32,11 @@
 		"format": "prettier . --write"
 	},
 	"devDependencies": {
+		"@babel/core": "^7.28.0",
+		"@babel/preset-env": "^7.28.0",
+		"@babel/preset-typescript": "^7.27.1",
+		"@rollup/plugin-babel": "^6.0.4",
+		"@rollup/plugin-terser": "^0.4.4",
 		"@types/jest": "^30.0.0",
 		"esbuild": "^0.25.6",
 		"jest": "^30.0.4",

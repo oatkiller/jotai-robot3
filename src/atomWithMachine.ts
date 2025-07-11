@@ -4,7 +4,7 @@ import type { Getter, WritableAtom } from 'jotai/vanilla';
 import { atom } from 'jotai/vanilla';
 import { interpret, type Service } from 'robot3';
 
-import { RESTART, isGetter } from './utils.js';
+import { RESTART, isGetter } from './utils.ts';
 
 // Helper type for events that can be sent to the service. Robot3 accepts
 // strings (transition name) or objects with a "type" field by default, so we

@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import dts from 'rollup-plugin-dts';
-import esbuild from 'rollup-plugin-esbuild';
+import { babel } from '@rollup/plugin-babel';
+import terser from '@rollup/plugin-terser';
 
 const rawPackageJSON = await fs.readFile('package.json', { encoding: 'utf8' });
 
@@ -30,9 +31,24 @@ const bundle = (config) => ({
 });
 
 export default [
-	// Output for NodeJS
+	// Output for NodeJS (CJS + ESM)
 	bundle({
-		plugins: [esbuild({ target: 'es6' })],
+		plugins: [
+			babel({
+				babelHelpers: 'bundled',
+				extensions: ['.js', '.ts'],
+				presets: [
+					'@babel/preset-typescript',
+					[
+						'@babel/preset-env',
+						{
+							targets: { node: '14' },
+							modules: false
+						}
+					]
+				]
+			})
+		],
 		output: [
 			{
 				file: `${libOutputPath}.cjs`,
@@ -60,12 +76,32 @@ export default [
 
 	// Output for browser
 	bundle({
-		plugins: [esbuild({ target: 'es5', minify: true })],
+		plugins: [
+			babel({
+				babelHelpers: 'bundled',
+				extensions: ['.js', '.ts'],
+				presets: [
+					'@babel/preset-typescript',
+					[
+						'@babel/preset-env',
+						{
+							targets: '> 0.25%, not dead, ie 11',
+							modules: false
+						}
+					]
+				]
+			}),
+			terser()
+		],
 		output: {
 			file: `./out/${name}-v${version}.js`,
 			format: 'iife',
 			name: camelCaseName,
-			sourcemap: true,
+			globals: {
+				'jotai/vanilla': 'jotai',
+				robot3: 'robot3'
+			},
+			sourcemap: 'inline',
 			compact: true
 		}
 	})
