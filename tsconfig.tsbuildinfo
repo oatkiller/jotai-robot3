@@ -1,1 +1,1 @@
-{"root":["./src/atomWithMachine.ts","./src/index.ts","./src/utils.ts","./test/atomWithMachine.spec.ts","./jest.config.js","./rollup.config.mjs"],"errors":true,"version":"5.8.3"}
+{"root":["./src/atomWithMachine.ts","./src/index.ts","./src/utils.ts","./test/atomWithMachine.spec.ts","./jest.config.js","./rollup.config.mjs"],"version":"5.8.3"}

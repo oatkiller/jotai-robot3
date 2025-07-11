@@ -46,18 +46,17 @@ describe('atomWithMachine', () => {
 	});
 
 	it('can start with custom initial state via getter', async () => {
-		const createToggleMachine = (initial?: string) =>
-			createMachine(
-				initial,
-				{
-					off: state(transition('TOGGLE', 'on')),
-					on: state(transition('TOGGLE', 'off')),
-				}
-			);
+		const createToggleMachine = (initial: 'on' | 'off' = 'off') =>
+			createMachine(initial, {
+				off: state(transition('TOGGLE', 'on')),
+				on: state(transition('TOGGLE', 'off'))
+			});
 
 		const initialStateAtom = atom<'on' | 'off'>('on');
 
-		const machineAtom = atomWithMachine((get) => createToggleMachine(get(initialStateAtom)));
+		const machineAtom = atomWithMachine((get) =>
+			createToggleMachine(get(initialStateAtom))
+		);
 
 		const store = createStore();
 		store.sub(machineAtom, () => {});

@@ -2,16 +2,25 @@
 
 import type { Getter, WritableAtom } from 'jotai/vanilla';
 import { atom } from 'jotai/vanilla';
-import { interpret, type Service } from 'robot3';
+import {
+	interpret,
+	type Service,
+	type Machine,
+	type GetMachineTransitions,
+	type SendEvent
+} from 'robot3';
 
-import { RESTART, isGetter } from './utils.ts';
+import { RESTART, isGetter, type Gettable } from './utils.ts';
 
-type AnyService = Service<unknown> & { stop?: () => void };
+// Generic service helper that additionally exposes an optional `stop` method
+// (Robot3 only exposes this when the machine contains invoked children).
+type AnyService<M extends Machine = Machine> = Service<M> & {
+	stop?: () => void;
+};
 
-// Helper type for events that can be sent to the service. Robot3 accepts
-// strings (transition name) or objects with a "type" field by default, so we
-// fallback to `any` for maximum compatibility.
-export type RobotEvent = unknown;
+// Helper type for events that can be sent to the service derived from the
+// machine's transition names.
+export type RobotEvent<M extends Machine> = SendEvent<GetMachineTransitions<M>>;
 
 // Internal atoms are marked as private in development so they don't clutter
 // React DevTools when using the official Jotai DevTools extension.
@@ -34,19 +43,17 @@ const markPrivate = (a: any) => {
 // `state` is the live `service.machine` reference and will update whenever the
 // machine transitions. Use `state.current` to read the current state value or
 // `state.context` for extended state.
-export function atomWithMachine(
-	getMachine: any | ((get: Getter) => any),
-	getInitialContext?:
-		| Record<string, unknown>
-		| ((get: Getter) => Record<string, unknown>)
-): WritableAtom<any, [RobotEvent | typeof RESTART], void> {
+export function atomWithMachine<M extends Machine>(
+	getMachine: Gettable<M>,
+	getInitialContext?: Gettable<M['context']>
+): WritableAtom<M, [RobotEvent<M> | typeof RESTART], void> {
 	// Holds a reference to the currently running Robot service (or `null` before
 	// lazy init / after restart).
-	const cachedServiceAtom = atom<AnyService | null>(null);
+	const cachedServiceAtom = atom<AnyService<M> | null>(null);
 	markPrivate(cachedServiceAtom);
 
 	// Stores the latest machine snapshot so that reads are synchronous.
-	const cachedSnapshotAtom = atom<ReturnType<AnyService['machine']> | null>(null);
+	const cachedSnapshotAtom = atom<M | null>(null);
 	markPrivate(cachedSnapshotAtom);
 
 	// Responsible for creating the service, wiring up the onChange listener and
@@ -81,7 +88,7 @@ export function atomWithMachine(
 					(svc) => {
 						set(cachedSnapshotAtom, svc.machine);
 					},
-					initialCtx as any
+					initialCtx!
 				);
 				set(cachedServiceAtom, service);
 				// Prime the snapshot with the initial machine value.
@@ -122,8 +129,8 @@ export function atomWithMachine(
 	// Expose `[snapshot, send]` style API via a single writable atom similar to
 	// jotai-xstate. Reading returns the latest snapshot, writing forwards events
 	// to the underlying Robot service.
-	const machineStateAtom = atom<ReturnType<AnyService['machine']>, [RobotEvent | typeof RESTART], void>(
-		(get) => get(snapshotAtom),
+	const machineStateAtom = atom<M, [RobotEvent<M> | typeof RESTART], void>(
+		(get) => get(snapshotAtom) as M,
 		(get, set, event) => {
 			const service = get(cachedServiceAtom);
 			if (!service) return; // not mounted yet
@@ -137,10 +144,10 @@ export function atomWithMachine(
 				set(cachedSnapshotAtom, null);
 				// Trigger lazy re-initialisation on next read.
 				// Pass an explicit undefined to satisfy WritableAtom setter types.
-				set(snapshotAtom, undefined as void);
+				set(snapshotAtom, () => {});
 			} else {
-				// @ts-expect-error: Robot3 Actor send typing is generic; runtime safe.
-				service.send(event as unknown);
+				// event here is narrowed to RobotEvent<M> by the if-guard above
+				service.send(event as RobotEvent<M>);
 				// No need to manually update snapshot – `onChange` callback will fire.
 			}
 		}
