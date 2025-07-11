@@ -10,7 +10,8 @@
 		"moduleResolution": "bundler",
 		"jsx": "react-jsx",
 		"allowImportingTsExtensions": true,
-		"noEmit": true
+		"noEmit": true,
+		"noImplicitAny": true
 	},
 	"include": ["src/**/*", "test/**/*", "jest.config.js", "rollup.config.mjs"]
 }

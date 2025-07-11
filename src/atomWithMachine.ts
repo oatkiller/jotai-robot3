@@ -6,10 +6,12 @@ import { interpret, type Service } from 'robot3';
 
 import { RESTART, isGetter } from './utils.ts';
 
+type AnyService = Service<unknown> & { stop?: () => void };
+
 // Helper type for events that can be sent to the service. Robot3 accepts
 // strings (transition name) or objects with a "type" field by default, so we
 // fallback to `any` for maximum compatibility.
-export type RobotEvent = any; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type RobotEvent = unknown;
 
 // Internal atoms are marked as private in development so they don't clutter
 // React DevTools when using the official Jotai DevTools extension.
@@ -40,11 +42,11 @@ export function atomWithMachine(
 ): WritableAtom<any, [RobotEvent | typeof RESTART], void> {
 	// Holds a reference to the currently running Robot service (or `null` before
 	// lazy init / after restart).
-	const cachedServiceAtom = atom<Service<any> | null>(null);
+	const cachedServiceAtom = atom<AnyService | null>(null);
 	markPrivate(cachedServiceAtom);
 
 	// Stores the latest machine snapshot so that reads are synchronous.
-	const cachedSnapshotAtom = atom<any | null>(null);
+	const cachedSnapshotAtom = atom<ReturnType<AnyService['machine']> | null>(null);
 	markPrivate(cachedSnapshotAtom);
 
 	// Responsible for creating the service, wiring up the onChange listener and
@@ -90,9 +92,8 @@ export function atomWithMachine(
 			// when no component is subscribed to it anymore).
 			reg(() => {
 				const current = get(cachedServiceAtom);
-				// @ts-ignore optional stop
-				if (current && typeof (current as any).stop === 'function') {
-					(current as any).stop();
+				if (current?.stop) {
+					current.stop();
 				}
 				set(cachedServiceAtom, null);
 				set(cachedSnapshotAtom, null);
@@ -121,7 +122,7 @@ export function atomWithMachine(
 	// Expose `[snapshot, send]` style API via a single writable atom similar to
 	// jotai-xstate. Reading returns the latest snapshot, writing forwards events
 	// to the underlying Robot service.
-	const machineStateAtom = atom<any, [RobotEvent | typeof RESTART], void>(
+	const machineStateAtom = atom<ReturnType<AnyService['machine']>, [RobotEvent | typeof RESTART], void>(
 		(get) => get(snapshotAtom),
 		(get, set, event) => {
 			const service = get(cachedServiceAtom);
@@ -129,16 +130,17 @@ export function atomWithMachine(
 
 			if (event === RESTART) {
 				// robot3's service does not expose a stop method; guard it for future-proofing
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				(service as any)?.stop?.();
+				if ('stop' in service && typeof service.stop === 'function') {
+					service.stop();
+				}
 				set(cachedServiceAtom, null);
 				set(cachedSnapshotAtom, null);
 				// Trigger lazy re-initialisation on next read.
 				// Pass an explicit undefined to satisfy WritableAtom setter types.
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				set(snapshotAtom, undefined as any);
+				set(snapshotAtom, undefined as void);
 			} else {
-				service.send(event as any);
+				// @ts-expect-error: Robot3 Actor send typing is generic; runtime safe.
+				service.send(event as unknown);
 				// No need to manually update snapshot – `onChange` callback will fire.
 			}
 		}
