@@ -24,14 +24,19 @@ import { atomWithMachine, RESTART } from 'jotai-robot3';
 import { createMachine, state, transition, reduce } from 'robot3';
 
 // 1. Create a machine as usual with Robot3.
-const counterMachine = createMachine({
-  inactive: state(
-    transition('toggle', 'active')
-  ),
-  active: state(
-    transition('toggle', 'inactive', reduce((ctx) => ({ ...ctx, count: ctx.count + 1 })))
-  ),
-}, () => ({ count: 0 }));
+const counterMachine = createMachine(
+	{
+		inactive: state(transition('toggle', 'active')),
+		active: state(
+			transition(
+				'toggle',
+				'inactive',
+				reduce((ctx) => ({ ...ctx, count: ctx.count + 1 }))
+			)
+		)
+	},
+	() => ({ count: 0 })
+);
 
 // 2. Wrap it in an atom.
 export const counterAtom = atomWithMachine(() => counterMachine);
@@ -43,9 +48,11 @@ In React you can use the atom just like any other Jotai atom:
 const [state, send] = useAtom(counterAtom);
 
 return (
-  <button onClick={() => send('toggle')}>
-    {state.current === 'inactive' ? 'Activate' : `Clicked ${state.context.count}`}
-  </button>
+	<button onClick={() => send('toggle')}>
+		{state.current === 'inactive'
+			? 'Activate'
+			: `Clicked ${state.context.count}`}
+	</button>
 );
 ```
 
@@ -67,8 +74,8 @@ Creates a writable atom that manages the lifecycle of a Robot3 service.
 
 The returned atom behaves like so:
 
-* **read** – Returns `service.machine` (kept in-sync with every transition).
-* **write** – Forwards the event to `service.send()`.
+- **read** – Returns `service.machine` (kept in-sync with every transition).
+- **write** – Forwards the event to `service.send()`.
 
 ### `RESTART`
 
