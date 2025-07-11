@@ -33,8 +33,8 @@ const config = {
 	coverageProvider: 'v8',
 
 	// ts-jest specific configs
-	testEnvironment: 'jsdom',
-	setupFilesAfterEnv: ['@testing-library/jest-dom'],
+	testEnvironment: 'node',
+	setupFilesAfterEnv: [],
 	transform: {
 		'^.+\\.tsx?$': [
 			'ts-jest',

@@ -56,7 +56,12 @@ export function atomWithMachine(
 			const svc = get(cachedServiceAtom);
 			return svc?.machine;
 		},
-		(get, set, registerCleanup: (cleanup: () => void) => void) => {
+		(
+			get,
+			set,
+			registerCleanup: ((cleanup: () => void) => void) | undefined
+		) => {
+			const reg = registerCleanup ?? (() => {});
 			// If there's already a service running we just (re)register the listener.
 			let service = get(cachedServiceAtom);
 			if (!service) {
@@ -83,10 +88,11 @@ export function atomWithMachine(
 
 			// Register cleanup that stops the service when Atom is unmounted (e.g.
 			// when no component is subscribed to it anymore).
-			registerCleanup(() => {
+			reg(() => {
 				const current = get(cachedServiceAtom);
-				if (current) {
-					current.stop();
+				// @ts-ignore optional stop
+				if (current && typeof (current as any).stop === 'function') {
+					(current as any).stop();
 				}
 				set(cachedServiceAtom, null);
 				set(cachedSnapshotAtom, null);
@@ -122,7 +128,9 @@ export function atomWithMachine(
 			if (!service) return; // not mounted yet
 
 			if (event === RESTART) {
-				service.stop();
+				// robot3's service does not expose a stop method; guard it for future-proofing
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				(service as any)?.stop?.();
 				set(cachedServiceAtom, null);
 				set(cachedSnapshotAtom, null);
 				// Trigger lazy re-initialisation on next read.

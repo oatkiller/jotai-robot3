@@ -1,7 +1,7 @@
 {
 	"name": "jotai-robot3",
 	"version": "1.0.0",
-	"description": "Jotai integration helpers for Robot3 state machines",
+	"description": "👻🤖🤖🤖",
 	"author": "Robert Austin",
 	"license": "MIT",
 	"keywords": [
@@ -29,7 +29,8 @@
 		"lint": "prettier . --check",
 		"build": "rollup -c",
 		"test": "jest",
-		"format": "prettier . --write"
+		"format": "prettier . --write",
+		"typecheck": "tsc -b"
 	},
 	"devDependencies": {
 		"@babel/core": "^7.28.0",
@@ -37,18 +38,12 @@
 		"@babel/preset-typescript": "^7.27.1",
 		"@rollup/plugin-babel": "^6.0.4",
 		"@rollup/plugin-terser": "^0.4.4",
-		"@testing-library/jest-dom": "^6.4.2",
 		"@testing-library/react": "^14.2.1",
-		"@testing-library/user-event": "^14.6.1",
 		"@types/jest": "^30.0.0",
-		"@types/react": "^18.2.61",
-		"@types/react-dom": "^18.2.17",
 		"esbuild": "^0.25.6",
 		"jest": "^30.0.4",
 		"jest-environment-jsdom": "^30.0.4",
 		"prettier": "^3.6.2",
-		"react": "^18.3.0",
-		"react-dom": "^18.3.0",
 		"robot3": "^1.1.1",
 		"rollup": "^4.44.2",
 		"rollup-plugin-dts": "^6.2.1",
