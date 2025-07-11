@@ -44,4 +44,30 @@ describe('atomWithMachine', () => {
 		await flushAll();
 		expect(store.get(countAtom).current).toBe('idle');
 	});
+
+	it('can start with custom initial state via getter', async () => {
+		const createToggleMachine = (initial?: string) =>
+			createMachine(
+				initial,
+				{
+					off: state(transition('TOGGLE', 'on')),
+					on: state(transition('TOGGLE', 'off')),
+				}
+			);
+
+		const initialStateAtom = atom<'on' | 'off'>('on');
+
+		const machineAtom = atomWithMachine((get) => createToggleMachine(get(initialStateAtom)));
+
+		const store = createStore();
+		store.sub(machineAtom, () => {});
+
+		expect(store.get(machineAtom).current).toBe('on');
+
+		// change initial state dynamically and restart
+		store.set(initialStateAtom, 'off');
+		store.set(machineAtom, RESTART);
+		await flushAll();
+		expect(store.get(machineAtom).current).toBe('off');
+	});
 });
