@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      jotai:
+        specifier: ^2.12.5
+        version: 2.12.5
     devDependencies:
       '@types/jest':
         specifier: ^29.5.12
@@ -20,6 +24,9 @@ importers:
       prettier:
         specifier: ^3.3.3
         version: 3.3.3
+      robot3:
+        specifier: ^1.1.1
+        version: 1.1.1
       rollup:
         specifier: ^4.20.0
         version: 4.20.0
@@ -1089,6 +1096,18 @@ packages:
       node-notifier:
         optional: true
 
+  jotai@2.12.5:
+    resolution: {integrity: sha512-G8m32HW3lSmcz/4mbqx0hgJIQ0ekndKWiYP7kWVKi0p6saLXdSoye+FZiOFyonnd7Q482LCzm8sMDl7Ar1NWDw==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -1279,6 +1298,9 @@ packages:
   resolve@1.22.8:
     resolution: {integrity: sha512-oKWePCxqpd6FlLvGV1VU0x7bkPmmCNolxzjMf4NczoDnQcIWrAF+cPtZn5i6n+RfD2d9i0tzpKnG6Yk168yIyw==}
     hasBin: true
+
+  robot3@1.1.1:
+    resolution: {integrity: sha512-kuD0oQg2KUE74FCQ1a5uoRsEJ/bUKrU1D3vnluop9X7LSiGLndejQgjUEcMqJMVzUA836HSXhtY7XNtQiPTCLQ==}
 
   rollup-plugin-dts@6.1.1:
     resolution: {integrity: sha512-aSHRcJ6KG2IHIioYlvAOcEq6U99sVtqDDKVhnwt70rW6tsz3tv5OSjEiWcgzfsHdLyGXZ/3b/7b/+Za3Y6r1XA==}
@@ -2776,6 +2798,8 @@ snapshots:
       - supports-color
       - ts-node
 
+  jotai@2.12.5: {}
+
   js-tokens@4.0.0: {}
 
   js-yaml@3.14.1:
@@ -2931,6 +2955,8 @@ snapshots:
       is-core-module: 2.15.0
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
+
+  robot3@1.1.1: {}
 
   rollup-plugin-dts@6.1.1(rollup@4.20.0)(typescript@5.5.4):
     dependencies:
