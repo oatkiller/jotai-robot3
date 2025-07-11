@@ -46,14 +46,14 @@ const markPrivate = (a: any) => {
 export function atomWithMachine<M extends Machine>(
 	getMachine: Gettable<M>,
 	getInitialContext?: Gettable<M['context']>
-): WritableAtom<M, [RobotEvent<M> | typeof RESTART], void> {
+): WritableAtom<AnyService<M>, [RobotEvent<M> | typeof RESTART], void> {
 	// Holds a reference to the currently running Robot service (or `null` before
 	// lazy init / after restart).
 	const cachedServiceAtom = atom<AnyService<M> | null>(null);
 	markPrivate(cachedServiceAtom);
 
 	// Stores the latest machine snapshot so that reads are synchronous.
-	const cachedSnapshotAtom = atom<M | null>(null);
+	const cachedSnapshotAtom = atom<AnyService<M> | null>(null);
 	markPrivate(cachedSnapshotAtom);
 
 	// Responsible for creating the service, wiring up the onChange listener and
@@ -62,8 +62,7 @@ export function atomWithMachine<M extends Machine>(
 		(get) => {
 			const snapshot = get(cachedSnapshotAtom);
 			if (snapshot) return snapshot;
-			const svc = get(cachedServiceAtom);
-			return svc?.machine;
+			return get(cachedServiceAtom);
 		},
 		(
 			get,
@@ -86,13 +85,13 @@ export function atomWithMachine<M extends Machine>(
 				service = interpret(
 					machine,
 					(svc) => {
-						set(cachedSnapshotAtom, svc.machine);
+						set(cachedSnapshotAtom, svc);
 					},
-					initialCtx!
+					initialCtx as M['context']
 				);
 				set(cachedServiceAtom, service);
-				// Prime the snapshot with the initial machine value.
-				set(cachedSnapshotAtom, service.machine);
+				// Prime the snapshot with the initial service.
+				set(cachedSnapshotAtom, service);
 			}
 
 			// Register cleanup that stops the service when Atom is unmounted (e.g.
@@ -129,8 +128,8 @@ export function atomWithMachine<M extends Machine>(
 	// Expose `[snapshot, send]` style API via a single writable atom similar to
 	// jotai-xstate. Reading returns the latest snapshot, writing forwards events
 	// to the underlying Robot service.
-	const machineStateAtom = atom<M, [RobotEvent<M> | typeof RESTART], void>(
-		(get) => get(snapshotAtom) as M,
+	const machineStateAtom = atom<AnyService<M>, [RobotEvent<M> | typeof RESTART], void>(
+		(get) => get(snapshotAtom) as AnyService<M>,
 		(get, set, event) => {
 			const service = get(cachedServiceAtom);
 			if (!service) return; // not mounted yet

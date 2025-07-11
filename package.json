@@ -28,7 +28,7 @@
 	"scripts": {
 		"lint": "prettier . --check",
 		"build": "rollup -c",
-		"test": "jest",
+		"test": "pnpm run -s typecheck && jest",
 		"format": "prettier . --write",
 		"typecheck": "tsc -b"
 	},
